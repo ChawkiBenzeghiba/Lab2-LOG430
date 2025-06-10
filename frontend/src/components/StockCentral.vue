@@ -1,24 +1,53 @@
 <template>
   <div class="stock-central">
-    <div class="reappro-form">
+    <h2>Stock Central</h2>
+
+    <table v-if="stockList.length" class="stock-table">
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Quantité</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in stockList" :key="item.id">
+          <td>{{ item.nom }}</td>
+          <td>{{ item.quantite }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="reappro-form" v-if="stockList.length">
       <h3>Demande de réapprovisionnement</h3>
+
       <label>
         Produit :
         <select v-model="selProduit">
-            <option disabled value="">-- Choisissez un produit --</option>
-            <option v-for="item in stockData" :key="item.id" :value="item.id">
-                {{ item.nom }} ({{ item.quantite }})
-            </option>
+          <option disabled value="">-- Choisissez un produit --</option>
+          <option
+            v-for="item in stockList"
+            :key="item.id"
+            :value="item.id"
+          >
+            {{ item.nom }} ({{ item.quantite }})
+          </option>
         </select>
       </label>
+
       <label>
-        Quantité :
+        Quantité à prélever :
         <input type="number" v-model.number="reqQte" min="1" />
       </label>
-      <button @click="demanderReappro" :disabled="!selProduit || reqQte < 1">
+
+      <button
+        @click="demanderReappro"
+        :disabled="!selProduit || reqQte < 1"
+      >
         Envoyer la demande
       </button>
+
       <div v-if="msg" class="msg">{{ msg }}</div>
+      <div v-if="error" class="error">{{ error }}</div>
     </div>
   </div>
 </template>
@@ -26,25 +55,23 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-const stockData = ref([])
-const loading   = ref(false)
-const error     = ref('')
-const selProduit= ref('')
-const reqQte    = ref(1)
-const msg       = ref('')
+const stockList  = ref([])
+const selProduit = ref('')
+const reqQte     = ref(1)
+const msg        = ref('')
+const error      = ref('')
 
 async function chargerStock() {
-  loading.value  = true
-  error.value    = ''
-  stockData.value= []
+  msg.value = ''
+  error.value = ''
   try {
-    const res = await fetch('/api/stock-central?ts=' + Date.now())
+    const res = await fetch('/api/stock-central?ts=' + Date.now(), {
+      cache: 'no-store'
+    })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    stockData.value = await res.json()
+    stockList.value = await res.json()
   } catch (err) {
-    error.value = 'Erreur : ' + err.message
-  } finally {
-    loading.value = false
+    error.value = 'Erreur chargement stock : ' + err.message
   }
 }
 
@@ -52,37 +79,53 @@ onMounted(chargerStock)
 
 async function demanderReappro() {
   msg.value = ''
+  error.value = ''
   try {
     const res = await fetch('/api/reapprovisionnement', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        produitId: selProduit.value,
-        quantiteDemandee: reqQte.value
+        produitId        : selProduit.value,
+        quantiteDemandee : reqQte.value
       })
     })
     const json = await res.json()
     if (!res.ok) throw new Error(json.error || 'Erreur inconnue')
-    // Met à jour l’affichage
-    stockData.value = json.inventaire
+
     await chargerStock()
-    msg.value       = json.message
+
+    msg.value = json.message
   } catch (err) {
-    msg.value = 'Erreur : ' + err.message
+    error.value = 'Erreur : ' + err.message
   }
 }
 </script>
 
 <style scoped>
+.stock-central {
+  max-width: 600px;
+  margin: 2em auto;
+  font-family: Arial, sans-serif;
+}
+.stock-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2em;
+}
+.stock-table th,
+.stock-table td {
+  border: 1px solid #ddd;
+  padding: 0.5em;
+}
+.stock-table th {
+  background: #f0f0f0;
+  text-align: left;
+}
 
 .reappro-form {
-  margin-top: 2em;
-  padding: 1em;
   border: 1px solid #ddd;
   border-radius: 4px;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
+  padding: 1em;
 }
 .reappro-form h3 {
   margin-top: 0;
@@ -90,7 +133,7 @@ async function demanderReappro() {
 }
 .reappro-form label {
   display: block;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.8em;
 }
 .reappro-form select,
 .reappro-form input {
@@ -102,12 +145,25 @@ async function demanderReappro() {
 .reappro-form button {
   display: block;
   margin: 1em auto;
-  padding: 0.5em 1em;
+  padding: 0.6em 1.2em;
+  background: #42b983;
+  color: white;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
 }
+.reappro-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .msg {
-  text-align: center;
   margin-top: 0.5em;
   color: green;
+  text-align: center;
+}
+.error {
+  margin-top: 0.5em;
+  color: red;
+  text-align: center;
 }
 </style>

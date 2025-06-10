@@ -25,7 +25,7 @@ async function seed() {
       { nom: 'Lait',           categorie: 'Alimentation', prix: 1.9, quantite: 80 },
       { nom: 'Savon',          categorie: 'Hygiène',      prix: 3.2, quantite: 60 },
       { nom: 'Brosse à dents', categorie: 'Hygiène',      prix: 2.8, quantite: 40 },
-      { nom: 'Eau (bouteille)',categorie: 'Boissons',     prix: 1.0, quantite: 200 }
+      { nom: 'Eau',categorie: 'Boissons',     prix: 1.0, quantite: 200 }
     ];
     const produits = await Produit.bulkCreate(produitsData, { returning: true });
     console.log(`Produits créés : ${produits.map(p => p.nom).join(', ')}`);

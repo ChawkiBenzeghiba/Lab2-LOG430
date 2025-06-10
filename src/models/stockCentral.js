@@ -8,7 +8,6 @@ const StockCentral = sequelize.define('StockCentral', {
     defaultValue: {}
   }
 }, {
-  // On empêche Sequelize de renommer la table au pluriel
   freezeTableName: true,
   tableName: 'StockCentral'
 });
