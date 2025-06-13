@@ -1,16 +1,19 @@
 FROM node:18
 
+# 1) Travailler à la racine /app
 WORKDIR /app
 
-# Copie du fichier package.json
-COPY ./src/package*.json ./
+# 2) Copier le package.json (et package-lock.json s’il existe)
+COPY package*.json ./
 
-# Installation des dépendances
+# 3) Installer les dépendances express, cors, etc.
 RUN npm install
 
-# Copie du reste du code source
-COPY ./src ./src
+# 4) Copier tout le code (src + autres fichiers) dans l’image
+COPY . .
 
+# 5) Pointer sur le dossier src pour lancer l’app
 WORKDIR /app/src
 
-CMD ["sh", "-c", "node seed.js && node main.js"]
+# 6) Démarrer votre seed puis le serveur
+CMD ["sh", "-c", "node seed.js && node app.js"]

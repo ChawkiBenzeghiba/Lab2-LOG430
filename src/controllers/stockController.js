@@ -27,7 +27,7 @@ exports.retirerDuStock = async (req, res) => {
     const { produitId, quantiteDemandee } = req.body;
     const stock = await StockCentral.findOne();
     const inventaire = stock.inventaire;
-    const dispo = inv[produitId] || 0;
+    const dispo = inventaire[produitId] || 0;
 
     if (quantiteDemandee > dispo) {
       return res.status(400).json({
@@ -37,7 +37,7 @@ exports.retirerDuStock = async (req, res) => {
 
     inventaire[produitId] = dispo - quantiteDemandee;
 
-    stock.inventaire = inventaire;
+    stock.changed('inventaire', true);
     await stock.save();
 
     //const updated = await StockCentral.findOne();

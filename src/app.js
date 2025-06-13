@@ -1,4 +1,4 @@
-require('./sync');            // Synchronisation Sequelize
+require('./sync');
 const express = require('express');
 const cors    = require('cors');
 
