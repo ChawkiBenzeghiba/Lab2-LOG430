@@ -4,6 +4,6 @@ const stockController = require('../controllers/stockController');
 
 router.get('/stock-central', stockController.afficherStock);
 
-router.post('/reapprovisionnement', stockController.retirerDuStock);
+router.post('/:magasinId/reapprovisionnement', stockController.retirerDuStock);
 
 module.exports = router;

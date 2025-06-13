@@ -17,38 +17,7 @@
       </tbody>
     </table>
 
-    <div class="reappro-form" v-if="stockList.length">
-      <h3>Demande de réapprovisionnement</h3>
 
-      <label>
-        Produit :
-        <select v-model="selProduit">
-          <option disabled value="">-- Choisissez un produit --</option>
-          <option
-            v-for="item in stockList"
-            :key="item.id"
-            :value="item.id"
-          >
-            {{ item.nom }} ({{ item.quantite }})
-          </option>
-        </select>
-      </label>
-
-      <label>
-        Quantité à prélever :
-        <input type="number" v-model.number="reqQte" min="1" />
-      </label>
-
-      <button
-        @click="demanderReappro"
-        :disabled="!selProduit || reqQte < 1"
-      >
-        Envoyer la demande
-      </button>
-
-      <div v-if="msg" class="msg">{{ msg }}</div>
-      <div v-if="error" class="error">{{ error }}</div>
-    </div>
   </div>
 </template>
 

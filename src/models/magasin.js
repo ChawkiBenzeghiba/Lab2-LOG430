@@ -10,6 +10,11 @@ const Magasin = sequelize.define('Magasin', {
   nom: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  inventaire: {
+    type: DataTypes.JSON,
+    allowNull: false,
+    defaultValue: {}
   }
 });
 

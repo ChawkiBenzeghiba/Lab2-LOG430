@@ -1,8 +1,8 @@
-const sequelize = require('./db');
-const Produit  = require('./models/produit');
-const Magasin  = require('./models/magasin');
-const Vente    = require('./models/vente');
-const StockCentral = require('./models/stockCentral');
+const sequelize      = require('./db');
+const Produit       = require('./models/produit');
+const Magasin       = require('./models/magasin');
+const Vente         = require('./models/vente');
+const StockCentral  = require('./models/stockCentral');
 
 async function seed() {
   try {
@@ -10,35 +10,49 @@ async function seed() {
     await sequelize.sync({ force: true });
     console.log("Structure des tables synchronisée (force:true)");
 
+    // 1) Création des magasins
     const magasinsData = [
       { nom: 'Alger' },
       { nom: 'Oran' },
-      { nom: 'Bejaia'},
-      { nom: 'Blida'},
-      { nom: 'Chlef'}
+      { nom: 'Bejaia' },
+      { nom: 'Blida' },
+      { nom: 'Chlef' }
     ];
     const magasins = await Magasin.bulkCreate(magasinsData, { returning: true });
     console.log(`Magasins créés : ${magasins.map(m => m.nom).join(', ')}`);
 
+    // 2) Création des produits
     const produitsData = [
-      { nom: 'Pain',           categorie: 'Alimentation', prix: 2.5, quantite: 100 },
-      { nom: 'Lait',           categorie: 'Alimentation', prix: 1.9, quantite: 80 },
-      { nom: 'Savon',          categorie: 'Hygiène',      prix: 3.2, quantite: 60 },
-      { nom: 'Brosse à dents', categorie: 'Hygiène',      prix: 2.8, quantite: 40 },
-      { nom: 'Eau',categorie: 'Boissons',     prix: 1.0, quantite: 200 }
+      { nom: 'Pain',           categorie: 'Alimentation', prix: 2.5},
+      { nom: 'Lait',           categorie: 'Alimentation', prix: 1.9},
+      { nom: 'Savon',          categorie: 'Hygiène',      prix: 3.2},
+      { nom: 'Brosse à dents', categorie: 'Hygiène',      prix: 2.8},
+      { nom: 'Eau',            categorie: 'Boissons',     prix: 1.0}
     ];
     const produits = await Produit.bulkCreate(produitsData, { returning: true });
     console.log(`Produits créés : ${produits.map(p => p.nom).join(', ')}`);
+
+    // 3) Initialisation de l’inventaire de chaque magasin
+    await Promise.all(magasins.map(async magasin => {
+      const inv = {};
+      produits.forEach(p => {
+        inv[p.id] = Math.floor(Math.random() * 30) + 1;
+      });
+      magasin.inventaire = inv;   // champ JSON ajouté à ton modèle Magasin
+      await magasin.save();
+    }));
+    console.log(`Inventaire initialisé pour ${magasins.length} magasins`);
     
-    const STOCK_CENTRAL_QUANTITE = 350;
-    const inventaire = {};
+    const STOCK_INIT = 350;
+    // 4) Seed du stock central (inchangé)
+    const inventaireCentral = {};
     produits.forEach(p => {
-      inventaire[p.id] = STOCK_CENTRAL_QUANTITE;
+      inventaireCentral[p.id] = STOCK_INIT;
     });
+    await StockCentral.create({ inventaire: inventaireCentral });
+    console.log(`Stock central singleton initialisé avec ${Object.keys(inventaireCentral).length} produits`);
 
-    await StockCentral.create({ inventaire });
-    console.log(`Stock central singleton initialisé avec ${Object.keys(inventaire).length} produits`);
-
+    // 5) Création des ventes
     const ventesData = [];
     magasins.forEach(magasin => {
       produits.forEach(produit => {

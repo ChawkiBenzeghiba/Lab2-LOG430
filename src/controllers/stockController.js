@@ -1,5 +1,6 @@
 const StockCentral  = require('../models/stockCentral');
 const Produit      = require('../models/produit');
+const Magasin      = require('../models/magasin');
 
 exports.afficherStock = async (_req, res) => {
   try {
@@ -40,7 +41,17 @@ exports.retirerDuStock = async (req, res) => {
     stock.changed('inventaire', true);
     await stock.save();
 
-    //const updated = await StockCentral.findOne();
+    const magasin = await Magasin.findByPk(req.params.magasinId);
+    if (!magasin) {
+      return res.status(404).json({ error: 'Magasin introuvable' });
+    }
+    
+    const invMag = magasin.inventaire || {};
+
+    invMag[produitId] = (invMag[produitId] || 0) + quantiteDemandee;
+    magasin.inventaire = invMag;
+    magasin.changed('inventaire', true);
+    await magasin.save();
 
     res.json({
       message: `Réapprovisionnement de ${quantiteDemandee} unités OK`,

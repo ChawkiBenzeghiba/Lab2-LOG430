@@ -2,16 +2,28 @@ const Produit       = require('../models/produit');
 const Magasin       = require('../models/magasin');
 const Vente         = require('../models/vente');
 
-exports.afficherProduits = async (req, res) => {
-  const magasinId = req.params.id;
-  const produits  = await Produit.findAll({
-    include: {
-      model: Magasin,
-      where: { id: magasinId },
-      through: { attributes: [] }
-    }
-  });
-  res.json(produits);
+exports.afficherProduits = async (req, res, next) => {
+  try {
+    const magasin = await Magasin.findByPk(req.params.id);
+    if (!magasin) return res.status(404).json({ error: 'Magasin introuvable' });
+
+    const produits = await Produit.findAll({
+      attributes: ['id','nom','categorie','prix']
+    });
+
+    const inv = magasin.inventaire || {};
+    const result = produits.map(p => ({
+      id:        p.id,
+      nom:       p.nom,
+      categorie: p.categorie,
+      prix:      p.prix,
+      quantite:  inv[p.id] || 0
+    }));
+
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
 };
 
 exports.rechercherProduit = async (req, res) => {
@@ -30,31 +42,44 @@ exports.rechercherProduit = async (req, res) => {
   res.json(produits);
 };
 
-exports.enregistrerVente = async (req, res) => {
-  const magasinId = req.params.id;
-  const { produitId, quantite } = req.body;
-  const produit = await Produit.findByPk(produitId);
-  if (!produit || quantite > produit.quantite) {
-    return res.status(400).json({ error: 'Quantité invalide ou stock insuffisant' });
+exports.enregistrerVente = async (req, res, next) => {
+  try {
+    const { produitId, quantite } = req.body;
+    const magasin = await Magasin.findByPk(req.params.id);
+    if (!magasin) return res.status(404).json({ error: 'Magasin introuvable' });
+
+    const inv = { ...magasin.inventaire };  // clone
+    const dispo = inv[produitId] || 0;
+    if (quantite > dispo) {
+      return res.status(400).json({ error: 'Stock insuffisant' });
+    }
+
+    inv[produitId] = dispo - quantite;
+    magasin.inventaire = inv;
+    await magasin.save();
+
+    res.json({ message: 'Vente enregistrée', nouveauStock: inv[produitId] });
+  } catch (err) {
+    next(err);
   }
-  
-  produit.quantite -= quantite;
-  await produit.save();
-  
-  await Vente.create({ quantite, ProduitId: produitId, MagasinId: magasinId });
-  res.json({ message: 'Vente enregistrée', nouveauStock: produit.quantite });
 };
 
-exports.faireRetour = async (req, res) => {
-  //const magasinId = req.params.id;
-  const { produitId, quantite } = req.body;
-  const produit = await Produit.findByPk(produitId);
-  if (!produit) {
-    return res.status(400).json({ error: 'Produit introuvable' });
+
+exports.faireRetour = async (req, res, next) => {
+  try {
+    const { produitId, quantite } = req.body;
+    const magasin = await Magasin.findByPk(req.params.id);
+    if (!magasin) return res.status(404).json({ error: 'Magasin introuvable' });
+
+    const inv = { ...magasin.inventaire };
+    inv[produitId] = (inv[produitId] || 0) + quantite;
+    magasin.inventaire = inv;
+    await magasin.save();
+
+    res.json({ message: 'Retour enregistré', nouveauStock: inv[produitId] });
+  } catch (err) {
+    next(err);
   }
-  produit.quantite += quantite;
-  await produit.save();
-  res.json({ message: 'Retour enregistré', nouveauStock: produit.quantite });
 };
 
 exports.recupererMagasin = async (_req, res) => {
