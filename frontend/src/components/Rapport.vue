@@ -16,8 +16,8 @@
           <div v-for="(produits, magasin) in rapport.ventesParMagasin" :key="magasin" class="card">
             <h3>{{ magasin }}</h3>
             <ul>
-              <li v-for="(total, produit) in produits" :key="produit">
-                {{ produit }} &mdash; {{ total.toFixed(2) }} $
+              <li v-for="(stats, produit) in produits":key="produit">
+                {{ produit }}, {{ stats.quantite || 0 }} unités, {{ (stats.ca ?? 0).toFixed(2) }} $
               </li>
             </ul>
           </div>
@@ -34,7 +34,6 @@
         </ol>
       </section>
 
-      <!-- Stocks restants -->
       <section class="card-section">
         <h2>Stocks restants</h2>
         <ul class="stocks-list">

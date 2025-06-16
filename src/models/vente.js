@@ -7,6 +7,10 @@ const Vente = sequelize.define('Vente', {
   quantite: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  prixUnitaire: {
+    type: DataTypes.DECIMAL(10,2),
+    allowNull: false
   }
 });
 

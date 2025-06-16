@@ -59,6 +59,7 @@ async function seed() {
         const quantiteVendu = Math.floor(Math.random() * 16) + 5;
         ventesData.push({
           quantite: quantiteVendu,
+          prixUnitaire: produit.prix,
           ProduitId: produit.id,
           MagasinId: magasin.id
         });

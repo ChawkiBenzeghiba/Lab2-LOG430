@@ -1,11 +1,16 @@
 <template>
   <div class="home">
-    <h1>Tableau de bord principal</h1>
+    <h1>
+      Maison mère 
+      <span v-if="magasins.length">{{ magasins[0].nom }}</span>
+    </h1>
 
     <!-- Boutons statiques -->
     <div class="buttons">
       <router-link to="/rapport" class="btn">Voir le Rapport</router-link>
       <router-link to="/stock-central" class="btn">Voir le Stock Central</router-link>
+      <!-- Nouveau bouton Tableau de bord -->
+      <router-link to="/tableau-de-bord" class="btn">Accéder au Tableau de bord</router-link>
     </div>
 
     <!-- Section magasins -->

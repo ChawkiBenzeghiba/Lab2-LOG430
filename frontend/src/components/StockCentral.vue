@@ -45,29 +45,6 @@ async function chargerStock() {
 }
 
 onMounted(chargerStock)
-
-async function demanderReappro() {
-  msg.value = ''
-  error.value = ''
-  try {
-    const res = await fetch('/api/reapprovisionnement', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        produitId        : selProduit.value,
-        quantiteDemandee : reqQte.value
-      })
-    })
-    const json = await res.json()
-    if (!res.ok) throw new Error(json.error || 'Erreur inconnue')
-
-    await chargerStock()
-
-    msg.value = json.message
-  } catch (err) {
-    error.value = 'Erreur : ' + err.message
-  }
-}
 </script>
 
 <style scoped>

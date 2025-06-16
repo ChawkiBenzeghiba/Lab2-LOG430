@@ -17,6 +17,9 @@ app.use('/api', stockRoutes);
 const magasinRoutes = require('./routes/magasinRoutes');
 app.use('/api', magasinRoutes);
 
+const tableauBordRoutes = require('./routes/tableauBordRoutes');
+app.use('/api', tableauBordRoutes);
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, '0.0.0.0', () => {
