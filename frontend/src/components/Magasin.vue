@@ -114,7 +114,6 @@ async function demanderReappro() {
     const json = await res.json()
     if (!res.ok) throw new Error(json.error || 'Erreur inconnue')
 
-    // recharge la liste après modif
     await loadAll()
     msgReappro.value = json.message
   } catch (err) {

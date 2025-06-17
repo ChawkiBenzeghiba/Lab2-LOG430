@@ -10,7 +10,6 @@ async function seed() {
     await sequelize.sync({ force: true });
     console.log("Structure des tables synchronisée (force:true)");
 
-    // 1) Création des magasins
     const magasinsData = [
       { nom: 'Alger' },
       { nom: 'Oran' },
@@ -21,7 +20,6 @@ async function seed() {
     const magasins = await Magasin.bulkCreate(magasinsData, { returning: true });
     console.log(`Magasins créés : ${magasins.map(m => m.nom).join(', ')}`);
 
-    // 2) Création des produits
     const produitsData = [
       { nom: 'Pain',           categorie: 'Alimentation', prix: 2.5},
       { nom: 'Lait',           categorie: 'Alimentation', prix: 1.9},
@@ -32,19 +30,17 @@ async function seed() {
     const produits = await Produit.bulkCreate(produitsData, { returning: true });
     console.log(`Produits créés : ${produits.map(p => p.nom).join(', ')}`);
 
-    // 3) Initialisation de l’inventaire de chaque magasin
     await Promise.all(magasins.map(async magasin => {
       const inv = {};
       produits.forEach(p => {
         inv[p.id] = Math.floor(Math.random() * 30) + 1;
       });
-      magasin.inventaire = inv;   // champ JSON ajouté à ton modèle Magasin
+      magasin.inventaire = inv;   
       await magasin.save();
     }));
     console.log(`Inventaire initialisé pour ${magasins.length} magasins`);
     
     const STOCK_INIT = 350;
-    // 4) Seed du stock central (inchangé)
     const inventaireCentral = {};
     produits.forEach(p => {
       inventaireCentral[p.id] = STOCK_INIT;

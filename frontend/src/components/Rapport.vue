@@ -9,7 +9,6 @@
 
     <div v-if="rapport" class="sections">
 
-      <!-- Ventes par magasin -->
       <section class="card-section">
         <h2>Ventes par magasin</h2>
         <div class="cards">
@@ -24,7 +23,6 @@
         </div>
       </section>
 
-      <!-- Top produits -->
       <section class="card-section">
         <h2>Top 3 produits les plus vendus</h2>
         <ol>

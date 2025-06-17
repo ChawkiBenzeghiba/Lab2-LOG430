@@ -5,7 +5,6 @@
       <span v-if="magasins.length">{{ magasins[0].nom }}</span>
     </h1>
 
-    <!-- Boutons statiques -->
     <div class="buttons">
       <router-link to="/rapport" class="btn">Voir le Rapport</router-link>
       <router-link to="/stock-central" class="btn">Voir le Stock Central</router-link>
@@ -13,7 +12,6 @@
       <router-link to="/tableau-de-bord" class="btn">Accéder au Tableau de bord</router-link>
     </div>
 
-    <!-- Section magasins -->
     <h2>Accès par magasin</h2>
     <div v-if="error" class="error">{{ error }}</div>
     <div v-else class="buttons magasins">

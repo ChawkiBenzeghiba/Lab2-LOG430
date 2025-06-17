@@ -13,13 +13,12 @@ async function safeSync(model, options = {}) {
       console.log(`Table "${model.tableName}" déjà synchronisée. Erreur ignorée.`);
     } else {
       console.error(`Erreur synchronisation table "${model.tableName}":`, err);
-      throw err; // ré-émettre pour arrêter si c'est autre chose
+      throw err; 
     }
   }
 }
 
 (async () => {
-  // Sync modèle par modèle
   await safeSync(Produit, { alter: true });
   await safeSync(Magasin, { alter: true });
   await safeSync(Vente, { alter: true });
