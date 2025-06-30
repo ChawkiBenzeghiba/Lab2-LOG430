@@ -1,0 +1,16 @@
+@startuml
+title Vue Cas d'Utilisation – Gestion Rapports/Stocks/Tableau de bord
+
+actor "Employé d'un magasin" as user
+
+rectangle "Système de gestion de stock" {
+  usecase "Consulter le tableau de bord" as UC1
+  usecase "Générer un rapport" as UC2
+  usecase "Consulter le stock central à partir de la maison mère" as UC3
+}
+user --> UC1
+user --> UC2
+user --> UC3
+
+
+@enduml

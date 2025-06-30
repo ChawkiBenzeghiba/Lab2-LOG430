@@ -1,0 +1,23 @@
+@startuml
+title Vue de Déploiement - Environnement local
+
+' Poste utilisateur
+node "Poste de l'Utilisateur" as poste {
+  rectangle "Navigateur Web" as navigateur
+}
+
+' Serveur Docker Host
+node "Serveur (Docker Host)" as docker {
+  node "Conteneur Web (Node.js/Express)" as web {
+    rectangle "Application Node.js/Express\n(app.js, routes, controllers, models)" as appnode
+  }
+  node "Conteneur BD (PostgreSQL)" as bdd {
+    rectangle "Base de données PostgreSQL" as pgsql
+  }
+}
+
+' Connexions
+navigateur -right-> appnode : HTTP/REST
+appnode -down-> pgsql : ORM (Sequelize)
+
+@enduml

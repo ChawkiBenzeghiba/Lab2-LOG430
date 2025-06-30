@@ -1,0 +1,53 @@
+@startuml
+title Vue Implémentation – Architecture des Couches et Flux API
+
+package "Application Node.js/Express" {
+  [app.js]
+  [sync.js]
+  [seed.js]
+}
+
+package "Couche Logique\n(Controllers & Routes)" {
+  [rapportController.js]
+  [magasinController.js]
+  [tableauBordController.js]
+  [stockController.js]
+  [rapportRoutes.js]
+  [magasinRoutes.js]
+  [tableauBordRoutes.js]
+  [stockRoutes.js]
+}
+
+package "Couche Données\n(Models & DB)" {
+  [produit.js]
+  [magasin.js]
+  [vente.js]
+  [stockCentral.js]
+  [db.js]
+}
+
+package "Couche Présentation\n(API JSON)" {
+  [Réponses JSON]
+}
+
+[app.js] --> [rapportRoutes.js]
+[app.js] --> [magasinRoutes.js]
+[app.js] --> [tableauBordRoutes.js]
+[app.js] --> [stockRoutes.js]
+
+[rapportRoutes.js] --> [rapportController.js]
+[magasinRoutes.js] --> [magasinController.js]
+[tableauBordRoutes.js] --> [tableauBordController.js]
+[stockRoutes.js] --> [stockController.js]
+
+[rapportController.js] --> [produit.js]
+[magasinController.js] --> [magasin.js]
+[tableauBordController.js] --> [vente.js]
+[stockController.js] --> [stockCentral.js]
+
+[rapportController.js] --> [Réponses JSON]
+[magasinController.js] --> [Réponses JSON]
+[tableauBordController.js] --> [Réponses JSON]
+[stockController.js] --> [Réponses JSON]
+
+@enduml

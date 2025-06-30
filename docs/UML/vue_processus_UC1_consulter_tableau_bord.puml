@@ -1,0 +1,33 @@
+@startuml
+title Vue de Processus – Use Case 1: Consulter le tableau de bord
+
+actor "Employé" as user
+participant "Navigateur Web" as browser
+participant "app.js (Express)" as app
+participant "tableauBordRoutes.js" as route
+participant "tableauBordController.js" as ctrl
+participant "Vente (Model)" as vente
+participant "Magasin (Model)" as magasin
+participant "Produit (Model)" as produit
+
+user -> browser : Demande de consultation du tableau de bord
+browser -> app : GET /api/tableau-de-bord
+app -> route : Route GET /api/tableau-de-bord
+route -> ctrl : appeler afficherTableauBord(req, res)
+ctrl -> vente : Vente.findAll({attributes: [MagasinId, quantite, prixUnitaire]})
+vente --> ctrl : Liste ventes
+
+ctrl -> magasin : Magasin.findAll({attributes: [id, nom]})
+ctrl -> produit : Produit.findAll({attributes: [id, nom]})
+magasin --> ctrl : Liste magasins
+produit --> ctrl : Liste produits
+
+ctrl -> magasin : Magasin.findAll({attributes: [id, inventaire]})
+magasin --> ctrl : Stocks magasins
+
+ctrl -> ctrl : Calculs (CA par magasin, ruptures, surstocks)
+ctrl -> route : res.json({caParMagasin, rupture, surstock})
+route -> app : Réponse JSON
+app -> browser : Affiche tableau de bord
+
+@enduml

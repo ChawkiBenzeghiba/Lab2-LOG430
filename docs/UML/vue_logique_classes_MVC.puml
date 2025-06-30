@@ -1,0 +1,112 @@
+@startuml
+title Vue Logique – Architecture MVC en packages
+
+package Modeles {
+  class Magasin {
+    + Integer id
+    + String nom
+    + JSON inventaire
+  }
+
+  class Produit {
+    + Integer id
+    + String nom
+    + String categorie
+    + Float prix
+  }
+
+  class StockCentral {
+    + JSONB inventaire
+  }
+
+  class Vente {
+    + Integer quantite
+    + Float prixUnitaire
+  }
+}
+
+' Associations entre entités
+Magasin "1"  <-right- "0..*" Vente
+Produit "1"  <-left- "0..*" Vente
+Vente --> Magasin
+Vente --> Produit
+
+package Controllers {
+  class magasinController {
+    + afficherProduits(req, res)
+    + rechercherProduit(req, res)
+    + enregistrerVente(req, res)
+    + faireRetour(req, res)
+    + recupererMagasin(req, res)
+  }
+
+  class rapportController {
+    + genererRapportJson(req, res)
+  }
+
+  class stockController {
+    + afficherStock(req, res)
+    + retirerDuStock(req, res)
+  }
+
+  class tableauBordController {
+    + afficherTableauBord(req, res)
+  }
+}
+
+' Dépendances Controllers → Models
+magasinController    --> Magasin
+magasinController    --> Produit
+magasinController    --> Vente
+
+rapportController    --> Magasin
+rapportController    --> Produit
+rapportController    --> Vente
+rapportController    --> StockCentral
+
+stockController      --> StockCentral
+stockController      --> Magasin
+
+tableauBordController --> Vente
+tableauBordController --> Magasin
+tableauBordController --> Produit
+
+package Vue {
+  class HomeVue {
+    + loadMagasins()
+    + navigation links
+  }
+
+  class MagasinVue {
+    + loadAll()
+    + search(), vendre(), retourner(), demanderReappro()
+  }
+
+  class RapportVue {
+    + chargerRapport()
+  }
+
+  class StockCentralVue {
+    + chargerStock()
+  }
+
+  class TableauDeBordVue {
+    + loadDashboard()
+  }
+}
+
+' Dépendances Views → Controllers (via HTTP)
+HomeVue             ..> magasinController
+HomeVue             ..> rapportController
+HomeVue             ..> stockController
+HomeVue             ..> tableauBordController
+
+MagasinVue          ..> magasinController 
+
+RapportVue          ..> rapportController
+
+StockCentralVue     ..> stockController
+
+TableauDeBordVue    ..> tableauBordController
+
+@enduml

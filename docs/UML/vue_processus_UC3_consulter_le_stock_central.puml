@@ -1,0 +1,21 @@
+@startuml
+title Vue de Processus – Use Case 3 : Consulter le stock central
+
+actor "Utilisateur" as user
+participant "Navigateur Web" as browser
+participant "app.js (Express)" as app
+participant "stockRoutes.js" as route
+participant "stockController.js" as ctrl
+participant "StockCentral (Model)" as stockcentral
+
+user -> browser : Demande de consultation du stock central
+browser -> app : GET /api/stock-central
+app -> route : Route GET /api/stock-central
+route -> ctrl : appeler afficherStock(req, res)
+ctrl -> stockcentral : StockCentral.findOne()
+stockcentral --> ctrl : Inventaire central
+ctrl -> route : res.json({inventaire})
+route -> app : Réponse JSON
+app -> browser : Affiche stock central
+
+@enduml
