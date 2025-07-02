@@ -1,4 +1,3 @@
-const sequelize = require('./db');
 const Produit  = require('./models/produit');
 const Magasin  = require('./models/magasin');
 const Vente    = require('./models/vente');

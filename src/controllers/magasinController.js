@@ -1,6 +1,5 @@
 const Produit       = require('../models/produit');
 const Magasin       = require('../models/magasin');
-const Vente         = require('../models/vente');
 
 exports.afficherProduits = async (req, res, next) => {
   try {
