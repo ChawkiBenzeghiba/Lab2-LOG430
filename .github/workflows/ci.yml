@@ -43,10 +43,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name:  Wait for PostgreSQL to be ready
+      - name: Wait for PostgreSQL to be ready
         run: |
           echo "Waiting for PostgreSQL..."
-          until pg_isready -h localhost -p 5432 -U $POSTGRES_USER; do sleep 1; done
+          for i in {1..10}; do
+            pg_isready -h localhost -p 5432 -U lab2user && break
+            sleep 1
+          done
 
       - name: Run model sync
         run: node src/sync.js
