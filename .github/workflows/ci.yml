@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: lab2db
+          POSTGRES_USER: lab2user
+          POSTGRES_PASSWORD: lab2pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lab2user -d lab2db"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: lab2db
+      DB_USER: lab2user
+      DB_PASS: lab2pass
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Wait for Postgres to be ready
+        run: |
+          for i in range(10):
+            pg_isready -h localhost -p 5432 -U lab2user && break
+            sleep 1
+
+      - name: Run model sync
+        run: node src/sync.js
+
+      - name: Run tests
+        run: npx jest --ci --runInBand
