@@ -14,7 +14,7 @@ L’API est développée en **Node.js/Express**, persiste les données avec **Se
 
 ## 2. Instructions d’exécution
 
-### 2.1 Cloner le dépôt  
+### 2.1 Cloner le dépôt
 ```bash
 git clone https://github.com/ChawkiBenzeghiba/Lab2-LOG430.git
 cd Lab2-LOG430
@@ -83,5 +83,3 @@ npx jest
 ## 6. Pipeline CI/CD
 
 Le fichier `.github/workflows/ci.yml` exécute automatiquement les tests à chaque push ou pull request, garantissant la validité des routes et de la persistance.
-
-```
