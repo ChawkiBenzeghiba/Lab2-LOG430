@@ -6,8 +6,14 @@ exports.afficherProduits = async (req, res, next) => {
     const magasin = await Magasin.findByPk(req.params.id);
     if (!magasin) return res.status(404).json({ error: 'Magasin introuvable' });
 
-    const produits = await Produit.findAll({
-      attributes: ['id','nom','categorie','prix']
+    // Pagination
+    const limit = parseInt(req.query.limit, 10) || 50;
+    const offset = parseInt(req.query.offset, 10) || 0;
+
+    const { count, rows: produits } = await Produit.findAndCountAll({
+      attributes: ['id','nom','categorie','prix'],
+      limit,
+      offset
     });
 
     const inv = magasin.inventaire || {};
@@ -19,7 +25,7 @@ exports.afficherProduits = async (req, res, next) => {
       quantite:  inv[p.id] || 0
     }));
 
-    res.json(result);
+    res.json({ total: count, produits: result });
   } catch (err) {
     next(err);
   }
@@ -31,14 +37,19 @@ exports.rechercherProduit = async (req, res) => {
   const where = {};
   if (nom) where.nom = nom;
   if (categorie) where.categorie = categorie;
-  const produits = await Produit.findAll({
+  // Pagination
+  const limit = parseInt(req.query.limit, 10) || 50;
+  const offset = parseInt(req.query.offset, 10) || 0;
+  const { count, rows: produits } = await Produit.findAndCountAll({
     where,
     include: {
       model: Magasin,
       where: { id: magasinId }
-    }
+    },
+    limit,
+    offset
   });
-  res.json(produits);
+  res.json({ total: count, produits });
 };
 
 exports.enregistrerVente = async (req, res, next) => {

@@ -17,6 +17,11 @@
       </tbody>
     </table>
 
+    <div style="margin-top:1em;">
+      <button @click="prevPage" :disabled="page===1">Page précédente</button>
+      <span>Page {{ page }} / {{ Math.ceil(total/pageSize) }}</span>
+      <button @click="nextPage" :disabled="page*pageSize>=total">Page suivante</button>
+    </div>
 
   </div>
 </template>
@@ -25,6 +30,9 @@
 import { ref, onMounted } from 'vue'
 
 const stockList  = ref([])
+const total      = ref(0)
+const page       = ref(1)
+const pageSize   = ref(20)
 const selProduit = ref('')
 const reqQte     = ref(1)
 const msg        = ref('')
@@ -33,14 +41,30 @@ const error      = ref('')
 async function chargerStock() {
   msg.value = ''
   error.value = ''
+  const offset = (page.value - 1) * pageSize.value
   try {
-    const res = await fetch('/api/stock-central?ts=' + Date.now(), {
+    const res = await fetch(`/api/stock-central?limit=${pageSize.value}&offset=${offset}&ts=` + Date.now(), {
       cache: 'no-store'
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    stockList.value = await res.json()
+    const data = await res.json()
+    stockList.value = data.produits
+    total.value = data.total
   } catch (err) {
     error.value = 'Erreur chargement stock : ' + err.message
+  }
+}
+
+function nextPage() {
+  if (page.value * pageSize.value < total.value) {
+    page.value++;
+    chargerStock();
+  }
+}
+function prevPage() {
+  if (page.value > 1) {
+    page.value--;
+    chargerStock();
   }
 }
 

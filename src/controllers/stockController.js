@@ -7,7 +7,10 @@ exports.afficherStock = async (_req, res) => {
     const stock = await StockCentral.findOne();
     if (!stock) return res.status(404).json({ error: 'Stock central introuvable' });
 
-    const produits = await Produit.findAll();
+    // Pagination
+    const limit = parseInt(_req.query.limit, 10) || 50;
+    const offset = parseInt(_req.query.offset, 10) || 0;
+    const { count, rows: produits } = await Produit.findAndCountAll({ limit, offset });
     const inventaire = stock.inventaire;
 
     const stockListe = produits.map(p => ({
@@ -16,7 +19,7 @@ exports.afficherStock = async (_req, res) => {
       quantite: inventaire[p.id] || 0
     }));
 
-    res.json(stockListe);
+    res.json({ total: count, produits: stockListe });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });

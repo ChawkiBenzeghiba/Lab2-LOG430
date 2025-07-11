@@ -1,0 +1,20 @@
+@startuml
+title Vue de Processus – rechercherProduit
+
+actor "Employé" as user
+participant "Navigateur Web" as browser
+participant "app.js (Express)" as app
+participant "magasinRoutes.js" as route
+participant "magasinController.js" as ctrl
+participant "Produit" as produit
+
+user -> browser : Recherche produit (nom/catégorie)
+browser -> app : GET /api/:id/produits/search?nom=... ou categorie=...
+app -> route : Route GET /api/:id/produits/search
+route -> ctrl : appeler rechercherProduit(req, res)
+ctrl -> produit : Produit.findAndCountAll({where, include, limit, offset})
+produit -->> ctrl : Liste produits
+ctrl -> route : res.json({total, produits})
+route -->> app : Réponse JSON
+app -->> browser : Affiche résultats paginés
+@enduml 

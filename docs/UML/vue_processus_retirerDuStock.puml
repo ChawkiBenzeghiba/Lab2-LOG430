@@ -1,0 +1,29 @@
+@startuml
+title Vue de Processus – retirerDuStock
+
+actor "Employé" as user
+participant "Navigateur Web" as browser
+participant "app.js (Express)" as app
+participant "stockRoutes.js" as route
+participant "stockController.js" as ctrl
+participant "StockCentral (Model)" as stockcentral
+participant "Magasin (Model)" as magasin
+
+user -> browser : Demande réapprovisionnement
+browser -> app : POST /api/:magasinId/reapprovisionnement {produitId, quantiteDemandee}
+app -> route : Route POST /api/:magasinId/reapprovisionnement
+route -> ctrl : appeler retirerDuStock(req, res)
+ctrl -> stockcentral : StockCentral.findOne()
+stockcentral -->> ctrl : Instance stock
+ctrl -> ctrl : Vérif stock central
+ctrl -> stockcentral : stockcentral.save()
+stockcentral -->> ctrl : Confirmation
+ctrl -> magasin : Magasin.findByPk(magasinId)
+magasin -->> ctrl : Instance magasin
+ctrl -> ctrl : Maj inventaire magasin
+ctrl -> magasin : magasin.save()
+magasin -->> ctrl : Confirmation
+ctrl -> route : res.json({message, nouvelleQuantite, inventaire})
+route -->> app : Réponse JSON
+app -->> browser : Affiche confirmation
+@enduml 

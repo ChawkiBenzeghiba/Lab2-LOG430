@@ -1,0 +1,20 @@
+@startuml
+title Vue de Processus – recupererMagasin
+
+actor "Employé" as user
+participant "Navigateur Web" as browser
+participant "app.js (Express)" as app
+participant "magasinRoutes.js" as route
+participant "magasinController.js" as ctrl
+participant "Magasin (Model)" as magasin
+
+user -> browser : Demande liste magasins
+browser -> app : GET /api/magasins
+app -> route : Route GET /api/magasins
+route -> ctrl : appeler recupererMagasin(req, res)
+ctrl -> magasin : Magasin.findAll()
+magasin -->> ctrl : Liste magasins
+ctrl -> route : res.json(liste)
+route -->> app : Réponse JSON
+app -->> browser : Affiche liste magasins
+@enduml 

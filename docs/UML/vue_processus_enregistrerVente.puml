@@ -1,0 +1,23 @@
+@startuml
+title Vue de Processus – enregistrerVente
+
+actor "Employé" as user
+participant "Navigateur Web" as browser
+participant "app.js (Express)" as app
+participant "magasinRoutes.js" as route
+participant "magasinController.js" as ctrl
+participant "Magasin (Model)" as magasin
+
+user -> browser : Effectue une vente
+browser -> app : POST /api/:id/vente {produitId, quantite}
+app -> route : Route POST /api/:id/vente
+route -> ctrl : appeler enregistrerVente(req, res)
+ctrl -> magasin : Magasin.findByPk(id)
+magasin -->> ctrl : Instance magasin
+ctrl -> ctrl : Vérif stock, maj inventaire
+ctrl -> magasin : magasin.save()
+magasin -->> ctrl : Confirmation
+ctrl -> route : res.json({message, nouveauStock})
+route -->> app : Réponse JSON
+app -->> browser : Affiche confirmation
+@enduml 

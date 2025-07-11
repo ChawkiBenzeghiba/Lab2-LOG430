@@ -18,13 +18,13 @@ route -> ctrl : appeler genererRapportJson(req, res)
 ctrl -> produit : Produit.findAll({id, nom, prix})
 ctrl -> vente : Vente.findAll({include: [Produit, Magasin]})
 ctrl -> stockcentral : StockCentral.findOne()
-produit --> ctrl : Liste produits
-vente --> ctrl : Liste ventes
-stockcentral --> ctrl : Stock central
+produit -->> ctrl : Liste produits
+vente -->> ctrl : Liste ventes
+stockcentral -->> ctrl : Stock central
 
 ctrl -> ctrl : Calculs (ventesParMagasin, topVentes, stocksRestants)
-ctrl -> route : res.json({ventesParMagasin, topVentes, stocksRestants})
-route -> app : Réponse JSON
-app -> browser : Affiche rapport généré
+ctrl -->> route : res.json({ventesParMagasin, topVentes, stocksRestants})
+route -->> app : Réponse JSON
+app -->> browser : Affiche rapport généré
 
 @enduml

@@ -1,0 +1,24 @@
+@startuml
+title Vue de Processus – afficherProduits
+
+actor "Employé" as user
+participant "Navigateur Web" as browser
+participant "app.js (Express)" as app
+participant "magasinRoutes.js" as route
+participant "magasinController.js" as ctrl
+participant "Magasin (Model)" as magasin
+participant "Produit (Model)" as produit
+
+user -> browser : Demande liste produits magasin
+browser -> app : GET /api/:id/produits
+app -> route : Route GET /api/:id/produits
+route -> ctrl : appeler afficherProduits(req, res)
+ctrl -> magasin : Magasin.findByPk(id)
+magasin -->> ctrl : Instance magasin
+ctrl -> produit : Produit.findAndCountAll({limit, offset})
+produit -->> ctrl : Liste produits
+ctrl -> ctrl : Calcul (quantité par produit)
+ctrl -> route : res.json({total, produits})
+route -->> app : Réponse JSON
+app -->> browser : Affiche liste paginée
+@enduml 

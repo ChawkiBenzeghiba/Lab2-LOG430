@@ -13,9 +13,9 @@ browser -> app : GET /api/stock-central
 app -> route : Route GET /api/stock-central
 route -> ctrl : appeler afficherStock(req, res)
 ctrl -> stockcentral : StockCentral.findOne()
-stockcentral --> ctrl : Inventaire central
-ctrl -> route : res.json({inventaire})
-route -> app : Réponse JSON
-app -> browser : Affiche stock central
+stockcentral -->> ctrl : Inventaire central
+ctrl -->> route : res.json({inventaire})
+route -->> app : Réponse JSON
+app -->> browser : Affiche stock central
 
 @enduml

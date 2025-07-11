@@ -20,13 +20,12 @@ async function seed() {
     const magasins = await Magasin.bulkCreate(magasinsData, { returning: true });
     console.log(`Magasins créés : ${magasins.map(m => m.nom).join(', ')}`);
 
-    const produitsData = [
-      { nom: 'Pain',           categorie: 'Alimentation', prix: 2.5},
-      { nom: 'Lait',           categorie: 'Alimentation', prix: 1.9},
-      { nom: 'Savon',          categorie: 'Hygiène',      prix: 3.2},
-      { nom: 'Brosse à dents', categorie: 'Hygiène',      prix: 2.8},
-      { nom: 'Eau',            categorie: 'Boissons',     prix: 1.0}
-    ];
+    // Génération de 45 produits pour tester la pagination (3 pages pleines si pageSize=20)
+    const produitsData = Array.from({length: 45}, (_, i) => ({
+      nom: `Produit${i+1}`,
+      categorie: ['Alimentation', 'Hygiène', 'Boissons'][i%3],
+      prix: (Math.random() * 10 + 1).toFixed(2)
+    }));
     const produits = await Produit.bulkCreate(produitsData, { returning: true });
     console.log(`Produits créés : ${produits.map(p => p.nom).join(', ')}`);
 

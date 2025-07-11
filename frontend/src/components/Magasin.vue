@@ -15,6 +15,11 @@
           {{ p.nom }} | {{ p.categorie }} | {{ p.prix }}$ | Stock : {{ p.quantite }}
         </li>
       </ul>
+      <div style="margin-top:1em;">
+        <button @click="prevPage" :disabled="page===1">Page précédente</button>
+        <span>Page {{ page }} / {{ Math.ceil(total/pageSize) }}</span>
+        <button @click="nextPage" :disabled="page*pageSize>=total">Page suivante</button>
+      </div>
     </div>
 
     <div v-else-if="onglet === 'recherche'">
@@ -25,6 +30,11 @@
           {{ p.nom }} | {{ p.categorie }} | {{ p.prix }}$ | Stock : {{ p.quantite }}
         </li>
       </ul>
+      <div style="margin-top:1em;">
+        <button @click="prevPage" :disabled="page===1">Page précédente</button>
+        <span>Page {{ page }} / {{ Math.ceil(total/pageSize) }}</span>
+        <button @click="nextPage" :disabled="page*pageSize>=total">Page suivante</button>
+      </div>
     </div>
 
     <div v-else-if="onglet === 'vente'">
@@ -53,7 +63,7 @@
     <select v-model="selProduitReappro">
       <option disabled value="">-- Choisissez un produit --</option>
       <option
-        v-for="item in produits"
+        v-for="item in allProduits"
         :key="item.id"
         :value="item.id"
       >
@@ -82,13 +92,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute }    from 'vue-router'
 
 const route = useRoute()
 const magasinId = route.params.id
 const onglet    = ref('liste')
 const produits  = ref([])
+const allProduits = ref([])
+const total     = ref(0)
+const page      = ref(1)
+const pageSize  = ref(20)
 const searchTerm= ref('')
 const selId     = ref(null)
 const quantVente= ref(1)
@@ -98,6 +112,17 @@ const selProduitReappro = ref(null)
 const reqQteReappro     = ref(1)
 const msgReappro        = ref('')
 const errorReappro      = ref('')
+
+async function loadAllProduits() {
+  // Charge tous les produits pour la liste déroulante de réapprovisionnement
+  const res = await fetch(`/api/${magasinId}/produits?limit=9999&offset=0`);
+  if (!res.ok) {
+    console.error('Erreur chargement allProduits', res.status);
+    return;
+  }
+  const data = await res.json();
+  allProduits.value = data.produits;
+}
 
 async function demanderReappro() {
   msgReappro.value   = ''
@@ -122,20 +147,49 @@ async function demanderReappro() {
 }
 
 async function loadAll() {
-  const res = await fetch(`/api/${magasinId}/produits`);
+  const offset = (page.value - 1) * pageSize.value
+  const res = await fetch(`/api/${magasinId}/produits?limit=${pageSize.value}&offset=${offset}`);
   if (!res.ok) {
     console.error('Erreur chargement produits', res.status);
     return;
   }
-  produits.value = await res.json();
+  const data = await res.json();
+  produits.value = data.produits;
+  total.value = data.total;
 }
 
-onMounted(loadAll)
+onMounted(() => {
+  loadAll();
+  loadAllProduits();
+})
+
+watch(onglet, (val) => {
+  if (val === 'reappro') {
+    loadAllProduits();
+  }
+})
+
+function nextPage() {
+  if (page.value * pageSize.value < total.value) {
+    page.value++;
+    loadAll();
+  }
+}
+function prevPage() {
+  if (page.value > 1) {
+    page.value--;
+    loadAll();
+  }
+}
 
 async function search() {
+  const offset = (page.value - 1) * pageSize.value
   const q = encodeURIComponent(searchTerm.value)
-  const res = await fetch(`/api/${magasinId}/produits/search?${searchTerm.value.includes(' ') ? 'categorie' : 'nom'}=${q}`)
-  produits.value = await res.json()
+  const param = searchTerm.value.includes(' ') ? 'categorie' : 'nom'
+  const res = await fetch(`/api/${magasinId}/produits/search?${param}=${q}&limit=${pageSize.value}&offset=${offset}`)
+  const data = await res.json()
+  produits.value = data.produits
+  total.value = data.total
 }
 
 async function vendre() {
