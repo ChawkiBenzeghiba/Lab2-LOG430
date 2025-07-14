@@ -28,8 +28,6 @@ package Modeles {
 ' Associations entre entités
 Magasin "1"  <-right- "0..*" Vente
 Produit "1"  <-left- "0..*" Vente
-Vente --> Magasin
-Vente --> Produit
 
 package Controllers {
   class magasinController {

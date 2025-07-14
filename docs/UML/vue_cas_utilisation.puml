@@ -7,10 +7,22 @@ rectangle "Système de gestion de stock" {
   usecase "Consulter le tableau de bord" as UC1
   usecase "Générer un rapport" as UC2
   usecase "Consulter le stock central à partir de la maison mère" as UC3
+  usecase "Afficher les produits" as UC4
+  usecase "Enregistrer une vente" as UC5
+  usecase "Faire un retour" as UC6
+  usecase "Rechercher un produit" as UC7
+  usecase "Récupérer un magasin" as UC8
+  usecase "Retirer du stock" as UC9
 }
 user --> UC1
 user --> UC2
 user --> UC3
+user --> UC4
+user --> UC5
+user --> UC6
+user --> UC7
+user --> UC8
+user --> UC9
 
 
 @enduml
